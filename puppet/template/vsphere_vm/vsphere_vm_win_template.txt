@@ -1,0 +1,7 @@
+vsphere_vm { '/Datacenter/vm/VM_NAME': 
+	ensure => running, 
+	source => '/Datacenter/vm/Templates/OS_Template', 
+	resource_pool  => '/bare.fyp.nyp',
+	memory => MEMORY,
+	cpus => VCPU, 
+}

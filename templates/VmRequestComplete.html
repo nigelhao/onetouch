@@ -1,0 +1,57 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="header" role="banner">
+                <h1 class="logo">
+            <a href="#">One <span>Touch</span></a>
+          </h1>
+                <div class="nav-wrap">
+                    <nav class="main-nav" role="navigation">
+                        <ul class="unstyled list-hover-slide">
+                            <li><a href="/CurrentVm">Your VM</a></li>
+                            <li><a href="/VmRequest">Request VM</a></li>
+                            {% if user == 2 or user == 0 %}
+                            <li><a href="/VmApproval">Pending Request VM</a></li>
+                            <li><a href="/UserManagement">User Management</a></li>
+                            {% endif %} 
+                            {% if user == 3 or user == 0 %}
+                            <li><a href="/VmProvision">Provision VM</a></li>
+                            <li><a href="/VmCompletion">Verify VM</a></li>
+                            <li><a href="/VmReconfigure">Reconfigure VM</a></li>
+                            {% endif %}
+                            <li><a href="/Logout">Logout</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="container-top-gap">
+                    <section class="contact-wrap">
+                        <div class="material-form">
+                            <h4>Your Request Of Virtual Machine Requires <strong> Approval</strong></h4>
+                            <h5>We will get back to you once it is provisioned</h5>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+</body>
+
+</html>

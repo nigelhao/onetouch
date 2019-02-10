@@ -1,0 +1,34 @@
+#This is using the OS level to SSH puppet server, not recommended to do this
+
+import os
+import time
+
+def executeConfig(vmName):
+    os.system("scp ./puppet/new_nodes/%s_conf.txt root@puppet.fyp.nyp:/puppet/new_nodes/%s.pp" % (vmName, vmName))
+    os.system("rm -f ./puppet/new_nodes/%s.txt" % (vmName))
+    os.system("ssh root@puppet.fyp.nyp puppet apply /puppet/new_nodes/%s.pp &" % (vmName))
+
+def executeManifest(vmName):
+    os.system("scp ./puppet/new_nodes/%s_manifest.txt root@puppet.fyp.nyp:/etc/puppetlabs/code/environments/production/manifests/hosts/%s.pp" % (vmName, vmName))
+    os.system("rm -f ./puppet/new_nodes/%s.txt" % (vmName))
+
+def retrieveManifest(vmName):
+    os.system("scp root@puppet.fyp.nyp:/etc/puppetlabs/code/environments/production/manifests/hosts/%s.pp ./puppet/reconf_nodes/%s_manifest.txt"  % (vmName, vmName))
+
+def updateManifest(vmName):
+    os.system("scp ./puppet/reconf_nodes/%s_manifest.txt root@puppet.fyp.nyp:/etc/puppetlabs/code/environments/production/manifests/hosts/%s.pp" % (vmName, vmName))
+
+def signCert(fqdn):
+    #Ensure that certificate is available.
+    for i in range(30): #Retry up to 30 times at the cycle of 5 seconds
+        certName = os.popen("ssh root@puppet.fyp.nyp /opt/puppetlabs/bin/puppetserver ca list | grep -owi %s" % (fqdn)).read().replace("\n","")
+        if fqdn == certName:
+            break
+        time.sleep(5)
+
+    if fqdn == certName:
+        os.system("ssh root@puppet.fyp.nyp /opt/puppetlabs/bin/puppetserver ca sign --certname %s" % (fqdn))
+        return True
+    else:
+        return False
+

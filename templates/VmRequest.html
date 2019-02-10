@@ -1,0 +1,163 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="header" role="banner">
+                <h1 class="logo">
+            <a href="#">One <span>Touch</span></a>
+          </h1>
+                <div class="nav-wrap">
+                    <nav class="main-nav" role="navigation">
+                        <ul class="unstyled list-hover-slide">
+                            <li><a href="/CurrentVm">Your VM</a></li>
+                            <li><a href="/VmRequest">Request VM</a></li>
+                            {% if user == 2 or user == 0 %}
+                            <li><a href="/VmApproval">Pending Request VM</a></li>
+                            <li><a href="/UserManagement">User Management</a></li>
+                            {% endif %} 
+                            {% if user == 3 or user == 0 %}
+                            <li><a href="/VmProvision">Provision VM</a></li>
+                            <li><a href="/VmCompletion">Verify VM</a></li>
+                            <li><a href="/VmReconfigure">Reconfigure VM</a></li>
+                            {% endif %}
+                            <li><a href="/Logout">Logout</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="container-top-gap">
+                    <section class="contact-wrap">
+                        <form class="material-form" id="vmRequestForm" action="/VmRequestForm" method="POST">
+                            <h2 class="center-text">Request Your VM</h2>
+                            <h4 class="center-text"> Virtual Machine Specification</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="input-block floating-field">
+                                        <label>Virtual Machine Name</label>
+                                        <input type="text" name="vmName" class="form-control" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-7">
+                                    <div class="input-block floating-field">
+                                        <label>Hostname</label>
+                                        <input type="text" name="hostname" class="form-control" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div class="input-block floating-field">
+                                        <label>Domain name</label>
+                                        <input type="text" name="domain" class="form-control" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="select-block">
+                                        <label>Processors</label>
+                                        <div class="custom-select-form">
+                                            <div class="active-list">2 CPU</div>
+                                            <input type="text" name="cpu" class="list-field" value="2 CPU" />
+                                            <ul class="drop-down-list">
+                                                <li value="1">1 CPU</li>
+                                                <li value="2">2 CPU</li>
+                                                <li value="4">4 CPU</li>
+                                                <li value="6">6 CPU</li>
+                                                <li value="8">8 CPU</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="select-block">
+                                        <label>Memory</label>
+                                        <div class="custom-select-form">
+                                            <div class="active-list">2048 MB</div>
+                                            <input type="text" name="memory" class="list-field" value="2048 MB" />
+                                            <ul class="drop-down-list">
+                                                <li>512 MB</li>
+                                                <li>1024 MB</li>
+                                                <li>2048 MB</li>
+                                                <li>4096 MB</li>
+                                                <li>8192 MB</li>
+                                                <li>16384 MB</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="input-block floating-field">
+                                        <label>Storage Size (GB)</label>
+                                        <input type="number" name="storage" class="form-control" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px; margin-bottom: 10px">
+                                <div class="col">
+                                    <h5 class="center-text">Select Operating System</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mx-auto">
+                                    <div class="radio-btn-group">
+                                        <div class="radio">
+                                            <input type="radio" name="osType" id="osType_deb" value="Debian_9.3">
+                                            <label for="osType_deb">
+                                                Debian 9.3
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <input type="radio" name="osType" id="osType_cent" value="CentOS_7.6">
+                                            <label for="osType_cent">
+                                                CentOS 7.6
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <input type="radio" id="osType_win" name="osType" value="WinServer_2016">
+                                            <label for="osType_win">
+                                                Windows Server 2016
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px">
+                                <div class="input-block floating-field textarea">
+                                    <label>Additional Requirement</label>
+                                    <textarea rows="8" id="t-requirement" class="form-control" autocomplete="off"></textarea>
+                                </div>
+                            </div>
+                            <input type="hidden" name="requirement" id="requirement" />
+                            <input type="submit" id="login-submit" value="Request VM" class="btn square-button material-btn" />
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+    <script>
+        $("#login-submit").click(function() {
+            $("#requirement").val($("#t-requirement").val());
+        });
+    </script>
+</body>
+
+</html>

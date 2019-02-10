@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="sidebar-wrapper">
+                <div class="header" role="banner">
+                    <h1 class="logo">
+                <a href="#">One <span>Touch</span></a>
+              </h1>
+                    <div class="nav-wrap">
+                        <nav class="main-nav" role="navigation">
+                            <ul class="unstyled list-hover-slide">
+    				            <li><a href="/Login">Login</a></li>
+                                <li><a href="/Registration">Register</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div id="page-content-wrapper">
+                <div class="container-fluid">
+                    <div class="container-top-gap">
+                        <section class="contact-wrap">
+                            <form id="login-form" class="material-form" action="/RegistrationForm" method="POST">
+                                <h3 class="center-text">Register OneTouch</h3>
+                                <div class="input-block floating-field">
+                                    <label>Name</label>
+                                    <input type="text" name="name" id="name-i" class="form-control" required="required" autocomplete="off">
+                                </div>
+                                <div class="input-block floating-field">
+                                    <label>Email Address</label>
+                                    <input type="email" name="email" id="email-i" class="form-control" required="required" autocomplete="off">
+                                </div>
+                                <div class="input-block floating-field">
+                                    <label>Password</label>
+                                    <input type="password" name="password" id="password-i" class="form-control" required="required" autocomplete="off">
+                                </div>
+                                <h6 id="wrong-login" class="center-text" style="color: red"></h6>
+                                <input type=submit id="login-submit" value="Register" class="btn square-button material-btn" />
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+        <script>
+            $('#login-form').submit(function(e) {
+                $.ajax({
+                        data: {
+                            email: $("#email-i").val(),
+                            password: $("#password-i").val(),
+                            name: $("#name-i").val()
+                        },
+                        type: 'POST',
+                        url: '/RegistrationForm'
+                    })
+                    .done(function(res) {
+                        if(res == 0){
+                            $("#wrong-login").text("Email address have been taken")
+                            $("#email-i").val("")
+                            $("#password-i").val("")
+                        }
+                        else if (res == 1){
+                            window.location.href = "/Login";
+                        }
+                    });
+
+                e.preventDefault(); 
+            });
+        </script>
+    </body>
+</html>

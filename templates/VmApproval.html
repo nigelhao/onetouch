@@ -1,0 +1,166 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="sidebar-wrapper">
+                <div class="header" role="banner">
+                    <h1 class="logo">
+                <a href="#">One <span>Touch</span></a>
+              </h1>
+                    <div class="nav-wrap">
+                        <nav class="main-nav" role="navigation">
+                            <ul class="unstyled list-hover-slide">
+                                <li><a href="/CurrentVm">Your VM</a></li>
+                                <li><a href="/VmRequest">Request VM</a></li>
+                                {% if user == 2 or user == 0 %}
+                                <li><a href="/VmApproval">Pending Request VM</a></li>
+                                <li><a href="/UserManagement">User Management</a></li>
+                                {% endif %} 
+                                {% if user == 3 or user == 0 %}
+                                <li><a href="/VmProvision">Provision VM</a></li>
+                                <li><a href="/VmCompletion">Verify VM</a></li>
+                                <li><a href="/VmReconfigure">Reconfigure VM</a></li>
+                                {% endif %}
+                                <li><a href="/Logout">Logout</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div id="page-content-wrapper">
+                <div class="container-fluid">
+                    <div class="material-form">
+                        <h2 class="center-text" style="margin-bottom: 30px; margin-top: 5px">Pending VM</h2>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">VM Name</th>
+                                    <th scope="col">CPU Core</th>
+                                    <th scope="col">Memory (MB)</th>
+                                    <th scope="col">Storage (GB)</th>
+                                    <th scope="col">Operating System</th>
+                                    <th scope="col" style="min-width: 154px; max-width: 154px">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for list in listArr %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>{{list[1]}}</td>
+                                    <td>{{list[2]}}</td>
+                                    <td>{{list[3]}}</td>
+                                    <td>{{list[4]}}</td>
+                                    <td>{{list[6]}}</td>
+                                    <td>{{list[5]}}</td>
+                                    <td>
+                                        <form action="/VmApprovalForm" method="POST">
+                                            <input type="hidden" name="rid" value={{list[0]}} />
+                                            <button type="button" class="btn btn-secondary btn-rid" data-toggle="modal" data-target="#exampleModalCenter" style="height: 38px;" value={{list[0]}}><i style="font-size: 18;" class="fas fa-search"></i></button>
+                                            <button type="submit" name="action" class="btn btn-success" value="2">✓</button>
+                                            <button type="submit" name="action" class="btn btn-danger" value="0">✕</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLongTitle">Information - <strong id="r-vmname"></strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="modal-title r-config" id="exampleModalLongTitle">Virtual Machine Specification</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h6>CPU: <span id="r-cpu"></span> core</h6>
+                    </div>
+                    <div class="col">
+                        <h6>RAM: <span id="r-memory"></span> MB</h6>
+                    </div>
+                    <div class="col">
+                        <h6>Disk Size: <span id="r-storage"></span> GB</h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h6>Operating System: <span id="r-os"></span></h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h5 class="modal-title r-config" id="exampleModalLongTitle">Network Configuration</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h6>Hostname: <span id="r-hostname"></span></h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h5 class="modal-title r-config" id="exampleModalLongTitle">Additional Requirement</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h6><span id="r-req"></span></h6>
+                    </div>
+                </div>
+            </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+        <script type="text/javascript">
+            $(".btn-rid").click(function() {
+                $.ajax({
+                        data: {
+                            rid: $(this).val(),
+                        },
+                        type: 'POST',
+                        url: '/GetPreMachineData'
+                    })
+                    .done(function(req) {
+                        console.log(req)
+                        $("#r-vmname").text(req.vmName);
+                        $("#r-cpu").text(req.cpu);
+                        $("#r-memory").text(req.memory);
+                        $("#r-storage").text(req.storage);
+                        $("#r-os").text(req.os);
+                        $("#r-hostname").text(req.hostname);
+                        $("#r-req").text(req.req);
+                    });
+            });
+        </script>
+    </body>
+</html>

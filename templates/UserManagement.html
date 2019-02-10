@@ -1,0 +1,117 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/snack.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="header" role="banner">
+                <h1 class="logo">
+            <a href="#">One <span>Touch</span></a>
+          </h1>
+                <div class="nav-wrap">
+                    <nav class="main-nav" role="navigation">
+                        <ul class="unstyled list-hover-slide">
+                            <li><a href="/CurrentVm">Your VM</a></li>
+                            <li><a href="/VmRequest">Request VM</a></li>
+                            {% if user == 2 or user == 0 %}
+                            <li><a href="/VmApproval">Pending Request VM</a></li>
+                            <li><a href="/UserManagement">User Management</a></li>
+                            {% endif %} 
+                            {% if user == 3 or user == 0 %}
+                            <li><a href="/VmProvision">Provision VM</a></li>
+                            <li><a href="/VmCompletion">Verify VM</a></li>
+                            <li><a href="/VmReconfigure">Reconfigure VM</a></li>
+                            {% endif %}
+                            <li><a href="/Logout">Logout</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="material-form">
+                    <h2 class="center-text" style="margin-bottom: 30px; margin-top: 5px">Manage User</h2>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Deployed VM</th>
+                                <th scope="col">Rejected VM</th>
+                                <th scope="col">Pending VM</th>
+                                <th scope="col" style="min-width: 106px; max-width: 106px">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for list in listArr %}
+                            <tr>
+                                <th scope="row">{{list[0]}}</th>
+                                <td>{{list[2]}}</td>
+                                <td>{{list[1]}}</td>
+                                <td>{{list[4]}}</td>
+                                <td>{{list[5]}}</td>
+                                <td>{{list[6]}}</td>
+                                <td>
+                                  <select class="role">
+                                    <option value="{{list[0]}}.1" {% if list[3] == 1 %} selected {% endif %}>User</option>
+                                    <option value="{{list[0]}}.3" {% if list[3] == 3 %} selected {% endif %}>Technician</option>
+                                    <option value="{{list[0]}}.2" {% if list[3] == 2 %} selected {% endif %}>Manager</option>
+                                    <option value="{{list[0]}}.0" {% if list[3] == 0 %} selected {% endif %} disabled="disabled">Admin</option>
+                                  </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="snackbar">Role has been updated</div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.nice-select.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/fastclick.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+          $('select:not(.ignore)').niceSelect();      
+          FastClick.attach(document.body);
+        });
+
+        $(".role").change(function(){
+            $.ajax({
+                    data: {
+                        changeData:$(this).val(),
+                    },
+                    type: 'POST',
+                    url: '/UserManagementForm'
+                })
+                .done(function(req) {
+                    console.log(req);
+                    // Get the snackbar DIV
+                    var x = document.getElementById("snackbar")
+
+                    // Add the "show" class to DIV
+                    x.className = "show";
+
+                    // After 3 seconds, remove the show class from DIV
+                    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+                });
+        });  
+    </script>
+</body>
+
+</html>

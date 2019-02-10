@@ -1,0 +1,14 @@
+vsphere_vm { '/Datacenter/vm/VM_NAME': 
+	ensure => running, 
+	source => '/Datacenter/vm/Templates/OS_Template', 
+	resource_pool  => '/bare.fyp.nyp',
+	memory => MEMORY,
+	cpus => VCPU, 
+	create_command => { 
+		command => '/bin/sh', 
+		arguments => '/root/install.sh HOSTNAME \'ROOT_PASSWORD\' USER \'USER_PASSWORD\'', 
+		working_directory => '/', 
+		user => 'root', 
+		password => 'P@ssw0rd', 
+	} 
+}

@@ -1,0 +1,237 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="sidebar-wrapper">
+                <div class="header" role="banner">
+                    <h1 class="logo">
+                <a href="#">One <span>Touch</span></a>
+              </h1>
+                    <div class="nav-wrap">
+                        <nav class="main-nav" role="navigation">
+                            <ul class="unstyled list-hover-slide">
+                                <li><a href="/CurrentVm">Your VM</a></li>
+                                <li><a href="/VmRequest">Request VM</a></li>
+                                {% if user == 2 or user == 0 %}
+                                <li><a href="/VmApproval">Pending Request VM</a></li>
+                                <li><a href="/UserManagement">User Management</a></li>
+                                {% endif %} 
+                                {% if user == 3 or user == 0 %}
+                                <li><a href="/VmProvision">Provision VM</a></li>
+                                <li><a href="/VmCompletion">Verify VM</a></li>
+                                <li><a href="/VmReconfigure">Reconfigure VM</a></li>
+                                {% endif %}
+                                <li><a href="/Logout">Logout</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div id="page-content-wrapper">
+                <div class="container-fluid">
+                    <div class="material-form">
+                        <h2 class="center-text" style="margin-bottom: 30px; margin-top: 5px">Verify VM</h2>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">VM Name</th>
+                                    <th scope="col">IP Address</th>
+                                    <th scope="col">FQDN</th>
+                                    <th scope="col">Operating System</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for list in listArr %}
+                                <tr>
+    				                <th scope="row">{{ loop.index }}</th>
+                                    <td>{{list[1]}}</td>
+                                    <td>{{list[2]}}</td>
+                                    <td>{{list[3]}}</td>
+                                    <td>{{list[4]}}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-success btn-rid" data-toggle="modal" data-target=".bd-example-modal-lg" style="height: 38px;" value={{list[0]}}><i style="font-size: 18" class="fa fa-thumbs-up" aria-hidden="true"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-giant">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLongTitle">Manual Configuration - <strong id="r-vmname"></strong></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="/VmCompletionForm" method="POST">
+                        <div class="modal-body" style="padding-left: 40px">
+                            <div class="row">
+                                <div class="col-5">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="modal-title r-config" id="exampleModalLongTitle">Virtual Machine Specification</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6>CPU: <span id="r-cpu"></span> core</h6>
+                                        </div>
+                                        <div class="col">
+                                            <h6>RAM: <span id="r-memory"></span> MB</h6>
+                                        </div>
+                                        <div class="col">
+                                            <h6>Disk Size: <span id="r-storage"></span> GB</h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6>Operating System: <span id="r-os"></span></h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="modal-title r-config" id="exampleModalLongTitle">Network Configuration</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6>IP Address: <span id="r-address"></span></h6>
+                                        </div>
+                                        <div class="col">
+                                            <h6>Subnet Mask: <span id="r-netmask"></span></h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6>Gateway: <span id="r-gateway"></span></h6>
+                                        </div>
+                                        <div class="col">
+                                            <h6>DNS Server: <span id="r-dns"></span></h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6>Hostname: <span id="r-hostname"></span></h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h5 class="modal-title r-config" id="exampleModalLongTitle">Additional Requirement</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6><span id="r-req"></span></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-7">
+                                    <div class="input-block floating-field textarea">
+                                        <label>Manifest Configuration <input class="mr-auto" type="checkbox" id="r-ta-checkbox"/></label>
+                                        <textarea rows="25" id="r-man" style="resize: none; margin-bottom: 15px" wrap="off" class="form-control" autocomplete="off" disabled></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="rid" id="r-rid" />
+                                        <input type="hidden" name="vmName" id="r-i-vmname"/>
+                                        <input type="hidden" name="action" value="5" />
+                                        <input type="hidden" id="r-h-man" name="manifest"/>
+                                        <input class="" type="checkbox" id="r-checkbox">Is all the requirements of the VM met?</input>
+                                        <input type="submit" class="btn btn-success ml-auto" id="r-submit" value="Complete" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+        <script>
+            $("#r-checkbox").click(function() {
+                $("#r-submit").attr("disabled", !this.checked);
+            });
+
+            $("#r-ta-checkbox").click(function() {
+                $("#r-man").attr("disabled", !this.checked);
+            });
+
+            $(".btn-rid").click(function() {
+                $.ajax({
+                        data: {
+                            rid: $(this).val(),
+                        },
+                        type: 'POST',
+                        url: '/GetMachineData'
+                    })
+                    .done(function(req) {
+                        console.log(req)
+                        $("#r-vmname").text(req.vmName);
+                        $("#r-cpu").text(req.cpu);
+                        $("#r-memory").text(req.memory);
+                        $("#r-storage").text(req.storage);
+                        $("#r-os").text(req.os);
+                        $("#r-address").text(req.address);
+                        $("#r-netmask").text(req.netmask);
+                        $("#r-gateway").text(req.gateway);
+                        $("#r-dns").text(req.dns);
+                        $("#r-hostname").text(req.hostname);
+                        $("#r-req").text(req.req);
+                        $("#r-man").val(req.man);
+                        $("#r-rid").val(req.rid);
+                        $("#r-i-vmname").val(req.vmName);
+                    });
+            });
+
+            $("#r-submit").click(function() {
+                $("#r-h-man").val($("#r-man").val());
+            });
+
+            function enableTab(id) {
+                var el = document.getElementById(id);
+                el.onkeydown = function(e) {
+                    if (e.keyCode === 9) { // tab was pressed
+
+                        // get caret position/selection
+                        var val = this.value,
+                            start = this.selectionStart,
+                            end = this.selectionEnd;
+
+                        // set textarea value to: text before caret + tab + text after caret
+                        this.value = val.substring(0, start) + '\t' + val.substring(end);
+
+                        // put caret at right position again
+                        this.selectionStart = this.selectionEnd = start + 1;
+
+                        // prevent the focus lose
+                        return false;
+
+                    }
+                };
+            }
+            enableTab('r-man');
+        </script>
+    </body>
+</html>

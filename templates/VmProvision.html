@@ -1,0 +1,124 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/bootstrap.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nav.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/form.css') }}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="sidebar-wrapper">
+                <div class="header" role="banner">
+                    <h1 class="logo">
+                <a href="#">One <span>Touch</span></a>
+              </h1>
+                    <div class="nav-wrap">
+                        <nav class="main-nav" role="navigation">
+                            <ul class="unstyled list-hover-slide">
+                                <li><a href="/CurrentVm">Your VM</a></li>
+                                <li><a href="/VmRequest">Request VM</a></li>
+                                {% if user == 2 or user == 0 %}
+                                <li><a href="/VmApproval">Pending Request VM</a></li>
+                                <li><a href="/UserManagement">User Management</a></li>
+                                {% endif %} 
+                                {% if user == 3 or user == 0 %}
+                                <li><a href="/VmProvision">Provision VM</a></li>
+                                <li><a href="/VmCompletion">Verify VM</a></li>
+                                <li><a href="/VmReconfigure">Reconfigure VM</a></li>
+                                {% endif %}
+                                <li><a href="/Logout">Logout</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div id="page-content-wrapper">
+                <div class="container-fluid">
+                    <div class="material-form">
+                        <h2 class="center-text" style="margin-bottom: 30px; margin-top: 5px">Provision VM</h2>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">VM Name</th>
+                                    <th scope="col">CPU Core</th>
+                                    <th scope="col">Memory (GB)</th>
+                                    <th scope="col">Storage (GB)</th>
+                                    <th scope="col">FQDN</th>
+                                    <th scope="col">Operating System</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for list in listArr %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>{{list[2]}}</td>
+                                    <td>{{list[3]}}</td>
+                                    <td>{{list[4]}}</td>
+                                    <td>{{list[6]}}</td>
+                                    <td>{{list[1]}}</td>
+                                    <td>{{list[5]}}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-rid" data-toggle="modal" data-target="#exampleModalCenter" style="height: 38px;" value={{list[0]}}><i class="fa fa-wrench" style="font-size: 18" aria-hidden="true"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLongTitle">Configure Networking</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="material-form" action="/VmProvisionForm" method="POST">
+                            <input type="hidden" name="rid" id="rid">
+                            <div class="input-block floating-field">
+                                <label>IP Address</label>
+                                <input type="text" name="address" class="form-control" autocomplete="off">
+                            </div>
+                            <div class="input-block floating-field">
+                                <label>Subnet Mask</label>
+                                <input type="text" name="netmask" value="255.255.255.0" class="form-control" autocomplete="off">
+                            </div>
+                            <div class="input-block floating-field">
+                                <label>Gateway</label>
+                                <input type="text" name="gateway" value="10.5.27.254" class="form-control" autocomplete="off">
+                            </div>
+                            <div class="input-block floating-field">
+                                <label>DNS Server</label>
+                                <input type="text" name="dns" value="10.5.27.51" class="form-control" autocomplete="off">
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Provision" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
+        <script>
+            $(".btn-rid").click(function() {
+                var btnVal = $(this).val();
+                $("#rid").val(btnVal)
+            });
+        </script>
+    </body>
+</html>
