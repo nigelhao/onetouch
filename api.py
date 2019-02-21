@@ -22,6 +22,9 @@ k = paramiko.RSAKey.from_private_key_file(os.path.expanduser('/root/.ssh/id_rsa'
 si = None
 try:
     print("Connecting to vCenter ...")
+    #To prevent timeout configure:
+    #/usr/local/lib/python3.5/dist-packages/pyVmomi/SoapAdapter.py:
+    #CONNECTION_POOL_IDLE_TIMEOUT_SEC = -1
     si = SmartConnectNoSSL(host="10.5.27.20", user="administrator@fyp.nyp", pwd="P@ssw0rd", port=443) #Bypass SSL check
     #si = SmartConnect(host="10.5.27.20", user="administrator@fyp.nyp", pwd="P@ssw0rd", port=443) 
 except IOError:
@@ -92,7 +95,7 @@ def hashValue(data):
     hashData = hashlib.sha256(data.encode()).hexdigest()
     return hashData
 
-def sendEmail(email, content):
+def sendEmail(email, content, managerEmailArr=None):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
@@ -101,6 +104,16 @@ def sendEmail(email, content):
         msg['Subject'] = 'OneTouch - Virtual Machine'
         msg['From'] = 'onetouch.fyp@gmail.com'
         string_of_emails = email
+        if managerEmailArr != None:
+            string_of_manager_email = ''
+            first = True
+            for managerEmail in managerEmailArr:
+                if first:
+                    string_of_manager_email = managerEmail[0]
+                    first = False
+                else:
+                    string_of_manager_email += ', ' + managerEmail[0]
+            msg['Cc'] = string_of_manager_email
         msg['To'] = string_of_emails
         msg.set_content(content)
         server.send_message(msg)

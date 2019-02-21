@@ -65,6 +65,34 @@ class Database:
             check = False
         gc.collect()
         return check, data
+
+    #Check if the names of the machin exist
+    def checkRequestMachine(self, vmName=None, hostname=None):
+        vmNameCheck = False
+        hostnameCheck = False
+        if vmName != None and hostname != None:
+            self.cur.execute('SELECT ID\
+            FROM Machine\
+            WHERE VmName = %(VmName)s', {
+                'VmName': vmName
+            })
+            if self.cur.rowcount == 0:
+                vmNameCheck = True
+
+            self.cur.execute('SELECT ID\
+            FROM Machine\
+            WHERE Hostname = %(Hostname)s', {
+                'Hostname': hostname
+            })
+            if self.cur.rowcount == 0:
+                hostnameCheck= True
+
+
+            gc.collect()
+            return vmNameCheck, hostnameCheck
+        else:
+            return None, None
+
     #TODO: Check for any identical vm name & hostname to prevent clash 
     #Request virtual machine to create upon approval
     def requestMachine(self, uid=None, vmName=None, cpuCore=None, memorySize=None,storageSize=None, hostname=None, os=None, requirements=None):
@@ -157,6 +185,23 @@ class Database:
         else:
             return False
 
+    #Check if the names of the machin exist
+    def checkMachineAddress(self, address=None):
+        addressCheck = False
+        if address != None: 
+            self.cur.execute('SELECT ID\
+            FROM Machine\
+            WHERE Address = %(Address)s', {
+                'Address': address
+            })
+            if self.cur.rowcount == 0:
+                addressCheck = True
+
+            gc.collect()
+            return addressCheck
+        else:
+            return None
+
     #TODO: Check for any identical ip address to prevent clash 
     #Update the network address of virtual machine when technician assign
     def updateMachineAddress(self, mn=None):
@@ -213,13 +258,14 @@ class Database:
 
     #List all the provisioned virtual machine
     def listCompletedRequest(self):
-        self.cur.execute('SELECT Request.ID, Machine.VmName, Machine.Address, Machine.Hostname, Machine.OperatingSystem, COUNT(IF(Change_Request.Status=0 OR Change_Request.Status=99, 1,NULL)) AS ChangeReqNo, COUNT(IF(Change_Request.Status=99, 1,NULL)) AS ChangeExpNo\
+        self.cur.execute('SELECT Request.ID, Machine.VmName, Machine.Address, Machine.Hostname, Machine.OperatingSystem, COUNT(IF(Change_Request.Status=0 OR Change_Request.Status=99, 1,NULL)) AS ChangeReqNo, COUNT(IF(Change_Request.Status=99, 1,NULL)) AS ChangeExpNo, Request.Status\
         FROM Request\
         INNER JOIN User ON Request.UserID = User.ID\
         INNER JOIN Machine ON Request.MachineID = Machine.ID\
         LEFT OUTER JOIN Change_Request ON Request.ID = Change_Request.RequestID\
         WHERE Request.Status = 5\
         OR Request.Status = 6\
+        OR Request.Status = 7\
         GROUP BY Request.ID\
         ORDER BY ChangeExpNo DESC, ChangeReqNo DESC, Request.ID')
         requests = self.cur.fetchall()
@@ -414,6 +460,7 @@ class Database:
             return True
         else:
             return False
+
     #Get the expiry date of the virtual machine
     def getExpiryRequest(self, rid=None):
         if rid != None:
@@ -444,9 +491,10 @@ class Database:
         return requests
     #List the vm that is expired and destory the vm
     def listExpiredVm(self):
-        self.cur.execute("SELECT Request.ID, Machine.VmName, Machine.CertName\
+        self.cur.execute("SELECT Request.ID, Machine.VmName, Machine.CertName, User.Name, User.Email\
         FROM Request\
         INNER JOIN Machine ON Request.MachineID = Machine.ID\
+        INNER JOIN User ON Request.UserID = User.ID\
         WHERE Request.Status = 6\
         AND Request.Expiry <= %(DateNow)s", {
             'DateNow': datetime.now().strftime('%Y-%m-%d'),
@@ -455,16 +503,40 @@ class Database:
         gc.collect()
         return requests
 
-    def getDestroyVm(self, rid=None, uid=None):
-        self.cur.execute("SELECT Request.ID, Machine.VmName, Machine.CertName\
+    def getDestroyVm(self, rid=None):
+        self.cur.execute("SELECT Request.ID, Machine.VmName, Machine.CertName, User.Name, User.Email\
         FROM Request\
         INNER JOIN Machine ON Request.MachineID = Machine.ID\
         INNER JOIN User ON Request.UserID = User.ID\
-        WHERE Request.ID = %(RequestID)s\
-        AND User.ID <= %(UserID)s", {
+        WHERE Request.ID = %(RequestID)s", {
             'RequestID': rid,
-            'UserID': uid,
         })
         requests = self.cur.fetchall()
         gc.collect()
         return requests[0]
+
+    #Get basic vm details of the vm requested
+    def getManagerEmail(self):
+        self.cur.execute('SELECT Email\
+        FROM User\
+        WHERE Role = 2')
+        requests = self.cur.fetchall()
+        gc.collect()
+        return requests
+
+#Testing purposes
+    def forceExpiryRequest(self, vmName=None):
+        if vmName != None:
+            self.cur.execute("UPDATE Request\
+            JOIN Machine\
+            ON Request.MachineID = Machine.ID\
+            SET Expiry = %(Expiry)s\
+            WHERE VmName = %(VmName)s", {
+                'Expiry': datetime.now().strftime('%Y-%m-%d'),
+                'VmName': vmName
+            })
+            self.conn.commit()
+            gc.collect()
+            return True
+        else:
+            return False

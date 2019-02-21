@@ -36,6 +36,11 @@ def destroyMachine(vmName, certName):
     api.sshCommand("puppet resource vsphere_vm /Datacenter/vm/%s ensure=absent" % (vmName))
     api.removeRemoteFile("/etc/puppetlabs/code/environments/production/manifests/hosts/%s.pp" % (vmName))
 
+def shutdownMachine(vmName):
+    api.sshCommand("puppet resource vsphere_vm /Datacenter/vm/%s ensure=stopped" % (vmName))
+
+def forceRestartMachine(vmName):
+    api.sshCommand("/puppet/scripts/restart_vm.sh %s &" % (vmName)) #Restart remote VM
 
 #NOTE: This part is important
 #When puppet agent is installed on the virtual machine, it will send it certificate to the puppet server for authentication

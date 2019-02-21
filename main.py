@@ -37,7 +37,7 @@ def checkExpiry():
             The following virtual machine is expiring soon:\n\
             VM Name: %s \n\
             Hostname: %s \n\n\
-            Machine will be destoryed when expired.\n\
+            Machine will be terminated by technician when expired.\n\
             Please login to extend your virtual machine as soon as possible.\n\n\
             Best regards,\n\
             One Touch Service" % (expiringVm[3], expiringVm[1], expiringVm[2])
@@ -46,9 +46,17 @@ def checkExpiry():
 
         #Query data base to list out virutal machine that is expired
         for expiredVm in db.listExpiredVm():
-            puppet_common.destroyMachine(expiredVm[1], expiredVm[2])
+            #Set machine to shutdown status. Waiting for technician to terminate
+            puppet_common.shutdownMachine(expiredVm[1])
             db.updateRequestStatus(expiredVm[0], 7)
-            print("VM Destroyed: " + expiredVm[1])
+            content = "Dear %s, \n\
+            The following virtual machine is expired:\n\
+            VM Name: %s \n\n\
+            Please contact your technician before it is fully terminated.\n\n\
+            Best regards,\n\
+            One Touch Service" % (expiredVm[3], expiredVm[1])
+            api.sendEmail(expiredVm[4], content, db.getManagerEmail())
+            print("VM Expired: " + expiredVm[1])
 
         time.sleep(3) #3 second refresh rate
         #time.sleep(3*60*60) #3 hour refresh rate
@@ -265,7 +273,6 @@ def getPreMachineData():
 @app.route("/VmCompletionForm", methods=['POST'])
 def vmCompletionForm():
     check = db.updateRequestStatus(request.form['rid'], request.form['action'])
-    
     if check:
         filePath = "./puppet/reconf_nodes/%s_manifest.txt" % request.form["vmName"]
         f = open(filePath, "w")
@@ -290,7 +297,7 @@ def vmCompletionForm():
         You can connect to the machine with the following IP address: %s \n\n\
         Best regards,\n\
         One Touch Service" % (data[7], data[0], data[0], data[1], data[2], data[3], data[6], data[5], data[4])
-        api.sendEmail(data[8], content)
+        api.sendEmail(data[8], content, db.getManagerEmail())
 
     return redirect('/VmCompletion')
 
@@ -303,7 +310,6 @@ def vmCreation(m):
             puppet_deb.manifest(m)
 
         return True
-
 
 @app.route("/VmReconfigure")
 def vmReconfigure():
@@ -326,7 +332,6 @@ def vmReconfigureForm():
 
 @app.route("/VmExtensionForm", methods=['POST'])
 def vmExtensionForm():
-    print(request.form['action'])
     if request.form['action'] != "0":
         date = datetime.datetime.strptime(request.form['date'], "%Y-%m-%d") + datetime.timedelta(int(request.form['action'])*365/12)
         db.updateExpiryRequest(request.form['rid'], date)
@@ -378,14 +383,40 @@ def changeExpiryForm():
     else:
         return redirect('/Login')
 
-@app.route("/DestroyVmForm", methods=['POST'])
-def DestroyVmForm():
+@app.route("/ForceRestartVmForm", methods=['POST'])
+def forceRestartVmForm():
     if session.get('login') == True:
-        data = db.getDestroyVm(request.form['rid'], session['uid'])
-        puppet_common.destroyMachine(data[1],data[2])
-        db.updateRequestStatus(data[0], 7)
-        print("VM Destroyed: " + data[1])
+        puppet_common.forceRestartMachine(request.form['action'])
         return redirect('/CurrentVm')
+    else:
+        return redirect('/Login')
+
+
+@app.route("/RequestDestroyVmForm", methods=['POST'])
+def requestDestroyVmForm():
+    if session.get('login') == True:
+        data = db.getDestroyVm(request.form['rid'])
+        puppet_common.shutdownMachine(data[1])
+        db.updateRequestStatus(data[0], 7)
+        return redirect('/CurrentVm')
+    else:
+        return redirect('/Login')
+
+@app.route("/DestroyVmForm", methods=['POST'])
+def destroyVmForm():
+    if session.get('login') == True:
+        data = db.getDestroyVm(request.form['rid'])
+        puppet_common.destroyMachine(data[1],data[2])
+        db.updateRequestStatus(data[0], 8)
+        content = "Dear %s, \n\
+        The following virtual machine has been successfully terminated:\n\
+        VM Name: %s \n\n\
+        Virtual machine and all its content is destroyed.\n\n\
+        Best regards,\n\
+        One Touch Service" % (data[3], data[1])
+        api.sendEmail(data[4], content, db.getManagerEmail())
+        print("VM Destroyed: " + data[1])
+        return redirect('/VmReconfigure')
     else:
         return redirect('/Login')
 
@@ -429,17 +460,18 @@ def userManagementForm():
 #PURPOSE OF TESTING FUNCTION ONLY
 @app.route("/test", methods=['GET', 'POST'])
 def test():
-    puppet_common.destroyMachine("test1", "test1.fyp.nyp")
-    return render_template("test.html",testing = '<script>alert()</script>')
+    #vmNameCheck, hostnameCheck = db.checkRequestMachine("win1_vm", "young_vm.fyp.nyp")
+    #addressCheck = db.checkMachineAddress("10.5.27.149")
+    #print(vmNameCheck)
+    #print(hostnameCheck)
+    #print(addressCheck)
+    return render_template("test.html")
 
 @app.route("/testForm", methods=['GET', 'POST'])
 def testForm():
-    data = request.form['testText']
-    f = open("./puppet/reconf_nodes/vm_deb_manifest.txt", "w")
-    f.write(data)
-    f.close()
-    puppet_common.updateManifest("vm_deb")
-    return "VALUE SUBMITED"
+    data = request.form['vmName']
+    db.forceExpiryRequest(data)
+    return "Expiry date changed"
 
 if __name__ == "__main__":
     threading.Thread(target = checkExpiry).start()

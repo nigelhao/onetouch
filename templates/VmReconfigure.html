@@ -66,7 +66,9 @@
                                         {% else %}
                                             <button type="button" class="btn btn-warning btn-rid" data-toggle="modal" data-target=".bd-example-modal-lg" style="height: 38px;" value={{list[0]}}><i style="font-size: 18" class="fa fa-cog" aria-hidden="true"></i></button>
                                         {% endif %}
-                                        
+                                        {% if list[7] == 7 %}
+                                        <button type="button" class="btn btn-danger btn-value" data-toggle="modal" data-target="#exampleModalCenter2" style="height: 38px" value="{{list[0]}}|{{list[1]}}"><i class="fa fa-trash-o" style="font-size:18px"></i></button>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -178,6 +180,35 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="exampleModalCenter2" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLongTitle">Destroy <span class="d-vmName"></span></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/DestroyVmForm" method="POST">
+                            <input type="hidden" class="d-rid" name="rid" />
+                            <div class="row">
+                                <div class="col">
+                                    <h6>Are you sure you want to destroy <span class="d-vmName"></span>?</h6>
+                                    <h6>All content and its data will be permanently deleted.</h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <button type="submit" class="btn btn-danger ml-auto" style="margin-top:20px" id="r-submit">Yes</button>
+                                    <button type="button" class="btn btn-secondary ml-auto" data-dismiss="modal" style="margin-top:20px">No</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/form.js') }}"></script>
@@ -216,6 +247,11 @@
                         };
 
                     });
+            });
+
+            $(".btn-value").click(function() {
+                $(".d-vmName").text($(this).val().split("|")[1])
+                $(".d-rid").val($(this).val().split("|")[0])
             });
 
             $("#r-submit").click(function() {
