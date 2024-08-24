@@ -1,2 +1,2 @@
 # onetouch
-Middleware that help you manage virtual machine from creating to deleting
+Middleware that streamlines the management of virtual machines, from creation to deletion, within a VMware vCenter environment.
